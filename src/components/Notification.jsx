@@ -1,9 +1,9 @@
 import React from "react";
 
-export function Notification({ messsage }) {
+export function Notification({ style, messsage }) {
   return (
     <div className="notification">
-      <h1>{messsage}</h1>
+      <h2 style={style}> {messsage}</h2>
     </div>
   );
 }

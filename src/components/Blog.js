@@ -1,8 +1,76 @@
-import React from "react";
-const Blog = ({ blog }) => (
-  <div>
-    {blog.title} {blog.author}
-  </div>
-);
+import React, { useState } from "react";
+import blogService from "../services/blogs";
 
-export default Blog;
+export default function Blog({ onRemove, blog }) {
+  const [blogState, setBlog] = useState(blog);
+  const [showInfo, setShowInfo] = useState(false);
+  const user = JSON.parse(localStorage.getItem("loggedUser")) || {};
+
+  const blogStyle = {
+    padding: 10,
+    border: "solid",
+    borderWidth: 1,
+    margin: 5,
+  };
+
+  const toggleInfo = () => {
+    setShowInfo(!showInfo);
+  };
+
+  const updateBlog = (event) => {
+    event.preventDefault();
+    setBlog({ ...blogState, likes: blogState.likes + 1 });
+
+    blogService
+      .putBlog({
+        ...blogState,
+        user: blogState.user.id,
+        likes: blogState.likes + 1,
+      })
+      .then(() => console.log("up"))
+      .catch((err) => console.log(err));
+  };
+
+  return (
+    <div style={blogStyle}>
+      {blogState.title} {!showInfo ? blogState.author : ""}
+      <button
+        onClick={toggleInfo}
+        style={{
+          background: "white",
+          marginLeft: 15,
+          padding: 5,
+          color: "black",
+          border: "solid",
+          cursor: "pointer",
+        }}
+      >
+        Expand
+      </button>
+      {user.id === blogState.user.id && (
+        <button
+          style={{
+            background: "blue",
+            marginLeft: 15,
+            padding: 5,
+            color: "white",
+            border: "solid",
+            cursor: "pointer",
+          }}
+          onClick={(event) => onRemove(event, blog.id)}
+        >
+          Remove
+        </button>
+      )}
+      {showInfo && (
+        <div>
+          <div> {blogState.url} </div>
+          <div>
+            {blogState.likes} <button onClick={updateBlog}>Like</button>{" "}
+          </div>
+          <div>{blogState.author}</div>
+        </div>
+      )}
+    </div>
+  );
+}

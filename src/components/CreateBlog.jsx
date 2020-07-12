@@ -1,10 +1,12 @@
 import React from "react";
 import { useState } from "react";
-import blogService from "../services/blogs";
 
-export function CreateBlog({ setBlogs, setBlogMsg }) {
-  const [blog, setBlog] = useState(null);
-  const user = JSON.parse(localStorage.getItem("loggedUser"));
+export function CreateBlog({ addBlog }) {
+  const [blog, setBlog] = useState({
+    title: "",
+    author: "",
+    url: "",
+  });
 
   const handleChange = (event) => {
     event.persist();
@@ -15,36 +17,35 @@ export function CreateBlog({ setBlogs, setBlogMsg }) {
     }));
   };
 
-  const onBlogSubmit = async (event) => {
-    event.preventDefault();
-    setBlog(null);
-
-    try {
-      const res = await blogService.postBlog({ ...blog, user: user.id });
-
-      if (res) {
-        setBlogs((prevState) => prevState.concat(res));
-      }
-    } catch (error) {
-      // setBlogMsg(error);
-      console.log(error.response.data.error);
-    }
-  };
-
   return (
     <div className="blog">
-      <form onSubmit={onBlogSubmit}>
+      <form onSubmit={(event) => addBlog(event, blog)}>
         <div>
           title
-          <input onChange={handleChange} name="title" type="text" />
+          <input
+            value={blog.title}
+            onChange={handleChange}
+            name="title"
+            type="text"
+          />
         </div>
         <div>
           author
-          <input onChange={handleChange} name="author" type="text" />
+          <input
+            value={blog.author}
+            onChange={handleChange}
+            name="author"
+            type="text"
+          />
         </div>
         <div>
           url
-          <input onChange={handleChange} name="url" type="text" />
+          <input
+            value={blog.url}
+            onChange={handleChange}
+            name="url"
+            type="text"
+          />
         </div>
         <button>Submit</button>
       </form>

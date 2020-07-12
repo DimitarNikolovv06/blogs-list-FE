@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import { Login } from "./components/Login";
 import { Notification } from "./components/Notification";
 import { CreateBlog } from "./components/CreateBlog";
+import { Togglable } from "./components/Togglable";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -12,7 +13,14 @@ const App = () => {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [errMessage, setErrMessage] = useState(null);
-  const [blogMsg, setBlogMsg] = useState(null);
+  const blogFormRef = useRef();
+
+  const errorStyle = {
+    backgroundColor: "red",
+    color: "white",
+    padding: 10,
+    border: "2px solid black",
+  };
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -27,6 +35,27 @@ const App = () => {
     }
   }, []);
 
+  const addBlog = async (event, blog) => {
+    event.preventDefault();
+    console.log(blogFormRef);
+    blogFormRef.current.toggle();
+
+    try {
+      const res = await blogService.postBlog({ ...blog, user: user.id });
+
+      if (res) {
+        setBlogs((state) => state.concat(res));
+
+        // setBlogCreated(`a new blog ${res.title} by ${res.author}`);
+      }
+    } catch (error) {
+      setTimeout(() => {
+        setErrMessage(null);
+      }, 5000);
+      setErrMessage(error.response.data.error);
+    }
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -39,7 +68,7 @@ const App = () => {
       setPassword("");
       setUsername("");
     } catch (error) {
-      setErrMessage(error);
+      setErrMessage(error.response.data.error);
 
       setTimeout(() => {
         setErrMessage(null);
@@ -54,10 +83,22 @@ const App = () => {
     setUser(null);
   };
 
+  const onRemove = (event, id) => {
+    event.preventDefault();
+
+    const result = window.confirm("Are you sure you want to remove this blog?");
+
+    if (result) {
+      blogService
+        .deleteBlog(id)
+        .then(() => setBlogs(blogs.filter((b) => b.id !== id)))
+        .catch((err) => setErrMessage(err.response.data.error));
+    }
+  };
+
   return (
     <div>
       <Notification messsage={errMessage} />
-
       {!user && (
         <div>
           <h1>LOGIN</h1>
@@ -73,15 +114,21 @@ const App = () => {
         <div>
           <p>{user.username} is logged-in</p>
           <button onClick={handleLogout}>Logout</button>
-          {blogMsg && <div>{blogMsg}</div>}
-          <h2>Create blog</h2>
-          <CreateBlog setBlogMsg={setBlogMsg} setBlogs={setBlogs} />
+          {errMessage && (
+            <Notification style={errorStyle} messsage={errMessage} />
+          )}
+          <Togglable label="Add New" ref={blogFormRef}>
+            <h2>Create blog</h2>
+            <CreateBlog addBlog={addBlog} />
+          </Togglable>
         </div>
       )}
 
-      {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
-      ))}
+      {blogs
+        .sort((a, b) => a.likes - b.likes)
+        .map((blog) => (
+          <Blog onRemove={onRemove} key={blog.id} blog={blog} />
+        ))}
     </div>
   );
 };
