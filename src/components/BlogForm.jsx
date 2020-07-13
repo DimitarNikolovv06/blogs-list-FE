@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 
-export function CreateBlog({ addBlog }) {
+export function BlogForm({ addBlog }) {
   const [blog, setBlog] = useState({
     title: "",
     author: "",
@@ -11,18 +11,19 @@ export function CreateBlog({ addBlog }) {
   const handleChange = (event) => {
     event.persist();
 
-    setBlog((prevState) => ({
-      ...prevState,
+    setBlog({
+      ...blog,
       [event.target.name]: event.target.value,
-    }));
+    });
   };
 
   return (
     <div className="blog">
       <form onSubmit={(event) => addBlog(event, blog)}>
         <div>
-          title
+          <label htmlFor="title">title</label>
           <input
+            id="title"
             value={blog.title}
             onChange={handleChange}
             name="title"
@@ -30,8 +31,9 @@ export function CreateBlog({ addBlog }) {
           />
         </div>
         <div>
-          author
+          <label htmlFor="author">author</label>
           <input
+            id="author"
             value={blog.author}
             onChange={handleChange}
             name="author"
@@ -39,8 +41,9 @@ export function CreateBlog({ addBlog }) {
           />
         </div>
         <div>
-          url
+          <label htmlFor="url">url</label>
           <input
+            id="url"
             value={blog.url}
             onChange={handleChange}
             name="url"

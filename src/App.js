@@ -4,7 +4,7 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import { Login } from "./components/Login";
 import { Notification } from "./components/Notification";
-import { CreateBlog } from "./components/CreateBlog";
+import { BlogForm } from "./components/BlogForm";
 import { Togglable } from "./components/Togglable";
 
 const App = () => {
@@ -98,6 +98,7 @@ const App = () => {
 
   return (
     <div>
+      {console.log(blogs)}
       <Notification messsage={errMessage} />
       {!user && (
         <div>
@@ -119,7 +120,7 @@ const App = () => {
           )}
           <Togglable label="Add New" ref={blogFormRef}>
             <h2>Create blog</h2>
-            <CreateBlog addBlog={addBlog} />
+            <BlogForm addBlog={addBlog} />
           </Togglable>
         </div>
       )}

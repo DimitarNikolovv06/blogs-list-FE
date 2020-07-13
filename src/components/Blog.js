@@ -32,7 +32,7 @@ export default function Blog({ onRemove, blog }) {
   };
 
   return (
-    <div style={blogStyle}>
+    <div className="blog" style={blogStyle}>
       {blogState.title} {!showInfo ? blogState.author : ""}
       <button
         onClick={toggleInfo}
@@ -65,7 +65,7 @@ export default function Blog({ onRemove, blog }) {
       {showInfo && (
         <div>
           <div> {blogState.url} </div>
-          <div>
+          <div className="likes">
             {blogState.likes} <button onClick={updateBlog}>Like</button>{" "}
           </div>
           <div>{blogState.author}</div>
