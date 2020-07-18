@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import blogService from "../services/blogs";
 
 export default function Blog({ onRemove, blog }) {
@@ -35,6 +35,7 @@ export default function Blog({ onRemove, blog }) {
     <div className="blog" style={blogStyle}>
       {blogState.title} {!showInfo ? blogState.author : ""}
       <button
+        id="expand-btn"
         onClick={toggleInfo}
         style={{
           background: "white",
@@ -47,8 +48,9 @@ export default function Blog({ onRemove, blog }) {
       >
         Expand
       </button>
-      {user.id === blogState.user.id && (
+      {user.id === (blogState.user.id ? blogState.user.id : blogState.user) && (
         <button
+          id="#remove-btn"
           style={{
             background: "blue",
             marginLeft: 15,
@@ -66,7 +68,10 @@ export default function Blog({ onRemove, blog }) {
         <div>
           <div> {blogState.url} </div>
           <div className="likes">
-            {blogState.likes} <button onClick={updateBlog}>Like</button>{" "}
+            {blogState.likes}{" "}
+            <button id="like-btn" onClick={updateBlog}>
+              Like
+            </button>{" "}
           </div>
           <div>{blogState.author}</div>
         </div>

@@ -7,6 +7,7 @@ export function Login({ setPassword, setUsername, handleLogin }) {
         <div>
           <label>username</label>
           <input
+            id="username"
             onChange={({ target }) => setUsername(target.value)}
             name="Username"
             type="text"
@@ -15,12 +16,13 @@ export function Login({ setPassword, setUsername, handleLogin }) {
         <div>
           <label>password</label>
           <input
+            id="password"
             onChange={({ target }) => setPassword(target.value)}
             name="Password"
             type="password"
           />
         </div>
-        <button>LOGIN</button>
+        <button id="login-btn">LOGIN</button>
       </form>
     </div>
   );

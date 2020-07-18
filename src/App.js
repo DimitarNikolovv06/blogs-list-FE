@@ -15,13 +15,6 @@ const App = () => {
   const [errMessage, setErrMessage] = useState(null);
   const blogFormRef = useRef();
 
-  const errorStyle = {
-    backgroundColor: "red",
-    color: "white",
-    padding: 10,
-    border: "2px solid black",
-  };
-
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
@@ -35,16 +28,21 @@ const App = () => {
     }
   }, []);
 
+  const errorStyle = {
+    color: errMessage ? "rgb(255,0,0)" : undefined,
+    margin: 5,
+  };
+
   const addBlog = async (event, blog) => {
     event.preventDefault();
-    console.log(blogFormRef);
     blogFormRef.current.toggle();
 
     try {
       const res = await blogService.postBlog({ ...blog, user: user.id });
 
       if (res) {
-        setBlogs((state) => state.concat(res));
+        setBlogs(blogs.concat(res));
+        // setAdded(true);
 
         // setBlogCreated(`a new blog ${res.title} by ${res.author}`);
       }
@@ -98,11 +96,9 @@ const App = () => {
 
   return (
     <div>
-      {console.log(blogs)}
-      <Notification messsage={errMessage} />
+      <Notification style={errorStyle} messsage={errMessage} />
       {!user && (
         <div>
-          <h1>LOGIN</h1>
           <Login
             setPassword={setPassword}
             setUsername={setUsername}
@@ -124,7 +120,6 @@ const App = () => {
           </Togglable>
         </div>
       )}
-
       {blogs
         .sort((a, b) => a.likes - b.likes)
         .map((blog) => (

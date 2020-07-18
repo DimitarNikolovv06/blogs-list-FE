@@ -19,7 +19,12 @@ export function BlogForm({ addBlog }) {
 
   return (
     <div className="blog">
-      <form onSubmit={(event) => addBlog(event, blog)}>
+      <form
+        onSubmit={(event) => {
+          addBlog(event, blog);
+          setBlog({ title: "", author: "", url: "" });
+        }}
+      >
         <div>
           <label htmlFor="title">title</label>
           <input
