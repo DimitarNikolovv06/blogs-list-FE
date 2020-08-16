@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import blogService from "../services/blogs";
+import React, { useState } from "react";
+import { useSource } from "../hooks/hooks";
 
 export default function Blog({ onRemove, blog }) {
   const [blogState, setBlog] = useState(blog);
   const [showInfo, setShowInfo] = useState(false);
   const user = JSON.parse(localStorage.getItem("loggedUser")) || {};
+  const [, blogService] = useSource("/api/blogs");
 
   const blogStyle = {
     padding: 10,

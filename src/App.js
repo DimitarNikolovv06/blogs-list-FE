@@ -1,32 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
-import blogService from "./services/blogs";
 import loginService from "./services/login";
 import { Login } from "./components/Login";
 import { Notification } from "./components/Notification";
 import { BlogForm } from "./components/BlogForm";
 import { Togglable } from "./components/Togglable";
+import { useSource } from "./hooks/hooks";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [errMessage, setErrMessage] = useState(null);
   const blogFormRef = useRef();
+  const [blogs, blogService] = useSource("/api/blogs");
+  const localUser = JSON.parse(localStorage.getItem("loggedUser"));
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
-
-  useEffect(() => {
-    const localUser = JSON.parse(localStorage.getItem("loggedUser"));
-
-    if (localUser) {
-      setUser(localUser);
-      blogService.setToken(localUser.token);
-    }
-  }, []);
+    if (localUser) blogService.setToken(localUser.token);
+  }, [localUser]);
 
   const errorStyle = {
     color: errMessage ? "rgb(255,0,0)" : undefined,
@@ -41,7 +33,7 @@ const App = () => {
       const res = await blogService.postBlog({ ...blog, user: user.id });
 
       if (res) {
-        setBlogs(blogs.concat(res));
+        blogService.setBlogs(blogs.concat(res));
         // setAdded(true);
 
         // setBlogCreated(`a new blog ${res.title} by ${res.author}`);
@@ -61,7 +53,6 @@ const App = () => {
       const user = await loginService.login({ username, password });
 
       localStorage.setItem("loggedUser", JSON.stringify(user));
-      blogService.setToken(user.token);
       setUser(user);
       setPassword("");
       setUsername("");
@@ -89,7 +80,7 @@ const App = () => {
     if (result) {
       blogService
         .deleteBlog(id)
-        .then(() => setBlogs(blogs.filter((b) => b.id !== id)))
+        .then(() => blogService.setBlogs(blogs.filter((b) => b.id !== id)))
         .catch((err) => setErrMessage(err.response.data.error));
     }
   };

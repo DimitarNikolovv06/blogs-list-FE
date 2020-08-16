@@ -2,9 +2,9 @@ import axios from "axios";
 const baseUrl = "/api/login";
 
 const login = async (user) => {
-  const response = await axios.post(baseUrl, user);
+  const res = await axios.post(baseUrl, user);
 
-  return response.data;
+  return res.data;
 };
 
 export default { login };
