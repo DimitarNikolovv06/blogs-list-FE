@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { useSource } from "../hooks/hooks";
+import { useDispatch, useSelector } from "react-redux";
+import { putBlog } from "../reducers/blogsReducer";
 
 export default function Blog({ onRemove, blog }) {
-  const [blogState, setBlog] = useState(blog);
+  const dispatch = useDispatch();
   const [showInfo, setShowInfo] = useState(false);
-  const user = JSON.parse(localStorage.getItem("loggedUser")) || {};
-  const [, blogService] = useSource("/api/blogs");
+  const user = useSelector((state) => state.user) || {};
+  const localUser = JSON.parse(localStorage.getItem("loggedUser")) || {};
 
-  const blogStyle = {
+  const style = {
     padding: 10,
     border: "solid",
     borderWidth: 1,
@@ -20,21 +21,19 @@ export default function Blog({ onRemove, blog }) {
 
   const updateBlog = (event) => {
     event.preventDefault();
-    setBlog({ ...blogState, likes: blogState.likes + 1 });
 
-    blogService
-      .putBlog({
-        ...blogState,
-        user: blogState.user.id,
-        likes: blogState.likes + 1,
+    dispatch(
+      putBlog({
+        ...blog,
+        user: blog.user.id,
+        likes: blog.likes + 1,
       })
-      .then(() => console.log("up"))
-      .catch((err) => console.log(err));
+    );
   };
 
   return (
-    <div className="blog" style={blogStyle}>
-      {blogState.title} {!showInfo ? blogState.author : ""}
+    <div className="blog" style={style}>
+      {blog.title} {!showInfo ? blog.author : ""}
       <button
         id="expand-btn"
         onClick={toggleInfo}
@@ -49,7 +48,7 @@ export default function Blog({ onRemove, blog }) {
       >
         Expand
       </button>
-      {user.id === (blogState.user.id ? blogState.user.id : blogState.user) && (
+      {localUser.id === (blog.user.id ? blog.user.id : blog.user) && (
         <button
           id="#remove-btn"
           style={{
@@ -67,14 +66,14 @@ export default function Blog({ onRemove, blog }) {
       )}
       {showInfo && (
         <div>
-          <div> {blogState.url} </div>
+          <div> {blog.url} </div>
           <div className="likes">
-            {blogState.likes}{" "}
+            {blog.likes}{" "}
             <button id="like-btn" onClick={updateBlog}>
               Like
             </button>{" "}
           </div>
-          <div>{blogState.author}</div>
+          <div>{blog.author}</div>
         </div>
       )}
     </div>

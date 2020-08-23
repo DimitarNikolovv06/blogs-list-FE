@@ -1,9 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { newNotification } from "../reducers/notificationsReducer";
+import { storeUser } from "../reducers/userReducer";
 
-export function Login({ setPassword, setUsername, handleLogin }) {
+export function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+
+    try {
+      dispatch(storeUser({ username, password }));
+
+      setPassword("");
+      setUsername("");
+      // await blogService.setToken(user.token);
+    } catch (error) {
+      dispatch(newNotification(error.response.data.error));
+
+      setTimeout(() => {
+        dispatch(newNotification(null));
+      }, 5000);
+    }
+  };
+
   return (
     <div className="login">
-      <form onSubmit={(event) => handleLogin(event)}>
+      <form onSubmit={handleLogin}>
         <div>
           <label>username</label>
           <input

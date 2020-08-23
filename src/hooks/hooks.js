@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useState, useEffect, useCallback } from "react";
+let token = null;
 
 export const useSource = (baseURL) => {
-  let token = null;
   const [blogs, setBlogs] = useState([]);
 
   const getAll = useCallback(() => {
@@ -17,6 +17,7 @@ export const useSource = (baseURL) => {
   const setToken = (newToken) => {
     token = `bearer ${newToken}`;
   };
+
   const postBlog = async (blog) => {
     const config = {
       headers: { Authorization: token },
@@ -39,6 +40,8 @@ export const useSource = (baseURL) => {
 
   const putBlog = async (blog) => {
     await axios.put(`${baseURL}/${blog.id}`, blog);
+
+    return blog.id;
   };
 
   return [

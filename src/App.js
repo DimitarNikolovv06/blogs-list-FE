@@ -1,67 +1,40 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Blog from "./components/Blog";
-import loginService from "./services/login";
 import { Login } from "./components/Login";
 import { Notification } from "./components/Notification";
 import { BlogForm } from "./components/BlogForm";
 import { Togglable } from "./components/Togglable";
-import { useSource } from "./hooks/hooks";
+import { newNotification } from "./reducers/notificationsReducer";
+import { useDispatch, useSelector } from "react-redux";
+import { initBlogs, postBlog, deleteBlog } from "./reducers/blogsReducer";
+import blogService from "./services/blogs";
 
 const App = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
-  const [errMessage, setErrMessage] = useState(null);
+  const dispatch = useDispatch();
   const blogFormRef = useRef();
-  const [blogs, blogService] = useSource("/api/blogs");
-  const localUser = JSON.parse(localStorage.getItem("loggedUser"));
+  const blogs = useSelector((state) => state.blogs);
+  const localuser = JSON.parse(localStorage.getItem("loggedUser")) || null;
+  const user = useSelector((state) => state.user);
 
   useEffect(() => {
-    if (localUser) blogService.setToken(localUser.token);
-  }, [localUser]);
+    if (localuser) blogService.setToken(localuser.token);
+  }, [localuser]);
 
-  const errorStyle = {
-    color: errMessage ? "rgb(255,0,0)" : undefined,
-    margin: 5,
-  };
+  useEffect(() => {
+    dispatch(initBlogs());
+  }, [dispatch]);
 
   const addBlog = async (event, blog) => {
     event.preventDefault();
     blogFormRef.current.toggle();
 
     try {
-      const res = await blogService.postBlog({ ...blog, user: user.id });
-
-      if (res) {
-        blogService.setBlogs(blogs.concat(res));
-        // setAdded(true);
-
-        // setBlogCreated(`a new blog ${res.title} by ${res.author}`);
-      }
+      await dispatch(postBlog({ ...blog, user: localuser.id }));
     } catch (error) {
       setTimeout(() => {
-        setErrMessage(null);
+        dispatch(newNotification(null));
       }, 5000);
-      setErrMessage(error.response.data.error);
-    }
-  };
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    try {
-      const user = await loginService.login({ username, password });
-
-      localStorage.setItem("loggedUser", JSON.stringify(user));
-      setUser(user);
-      setPassword("");
-      setUsername("");
-    } catch (error) {
-      setErrMessage(error.response.data.error);
-
-      setTimeout(() => {
-        setErrMessage(null);
-      }, 5000);
+      dispatch(newNotification(error.response.data.error));
     }
   };
 
@@ -69,7 +42,7 @@ const App = () => {
     event.preventDefault();
 
     localStorage.clear();
-    setUser(null);
+    dispatch({ type: "CLEAR_USER" });
   };
 
   const onRemove = (event, id) => {
@@ -78,33 +51,23 @@ const App = () => {
     const result = window.confirm("Are you sure you want to remove this blog?");
 
     if (result) {
-      blogService
-        .deleteBlog(id)
-        .then(() => blogService.setBlogs(blogs.filter((b) => b.id !== id)))
-        .catch((err) => setErrMessage(err.response.data.error));
+      try {
+        dispatch(deleteBlog(id));
+      } catch (error) {
+        dispatch(newNotification(error.response.data.error));
+      }
     }
   };
 
   return (
     <div>
-      <Notification style={errorStyle} messsage={errMessage} />
-      {!user && (
+      <Notification />
+      {!localuser && <Login />}
+      <h2>Blogs</h2>
+      {localuser && (
         <div>
-          <Login
-            setPassword={setPassword}
-            setUsername={setUsername}
-            handleLogin={handleLogin}
-          />
-        </div>
-      )}
-      <h2>blogs</h2>
-      {user && (
-        <div>
-          <p>{user.username} is logged-in</p>
+          <p>{localuser.username} is logged-in</p>
           <button onClick={handleLogout}>Logout</button>
-          {errMessage && (
-            <Notification style={errorStyle} messsage={errMessage} />
-          )}
           <Togglable label="Add New" ref={blogFormRef}>
             <h2>Create blog</h2>
             <BlogForm addBlog={addBlog} />
