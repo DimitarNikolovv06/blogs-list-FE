@@ -23,6 +23,12 @@ export const putBlog = (blog) => async (dispatch) => {
   dispatch({ type: "PUT_BLOG", data });
 };
 
+export const postCommentToBlog = (id, comment) => async (dispatch) => {
+  const data = await blogService.postComment(id, comment);
+
+  dispatch({ type: "POST_COMMENT", data });
+};
+
 export const blogsReducer = (state = [], action) => {
   switch (action.type) {
     case "INIT_BLOGS":
@@ -40,6 +46,9 @@ export const blogsReducer = (state = [], action) => {
           b.id !== action.data ? b : { ...b, likes: b.likes + 1 }
         ),
       ];
+
+    case "POST_COMMENT":
+      return [...state.map((b) => (b.id === action.data.id ? action.data : b))];
 
     default:
       return state;

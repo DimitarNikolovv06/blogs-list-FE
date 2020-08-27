@@ -8,17 +8,19 @@ import { newNotification } from "./reducers/notificationsReducer";
 import { useDispatch, useSelector } from "react-redux";
 import { initBlogs, postBlog, deleteBlog } from "./reducers/blogsReducer";
 import blogService from "./services/blogs";
+import { Switch, Route, Link } from "react-router-dom";
+import Users from "./components/Users";
+import { User } from "./components/User";
+import BlogView from "./components/BlogView";
 
 const App = () => {
   const dispatch = useDispatch();
   const blogFormRef = useRef();
-  const blogs = useSelector((state) => state.blogs);
-  const localuser = JSON.parse(localStorage.getItem("loggedUser")) || null;
-  const user = useSelector((state) => state.user);
+  const { user, blogs } = useSelector((state) => state);
 
   useEffect(() => {
-    if (localuser) blogService.setToken(localuser.token);
-  }, [localuser]);
+    if (user) blogService.setToken(user.token);
+  }, [user]);
 
   useEffect(() => {
     dispatch(initBlogs());
@@ -29,7 +31,7 @@ const App = () => {
     blogFormRef.current.toggle();
 
     try {
-      await dispatch(postBlog({ ...blog, user: localuser.id }));
+      await dispatch(postBlog({ ...blog, user: user.id }));
     } catch (error) {
       setTimeout(() => {
         dispatch(newNotification(null));
@@ -60,26 +62,53 @@ const App = () => {
   };
 
   return (
-    <div>
-      <Notification />
-      {!localuser && <Login />}
-      <h2>Blogs</h2>
-      {localuser && (
-        <div>
-          <p>{localuser.username} is logged-in</p>
-          <button onClick={handleLogout}>Logout</button>
-          <Togglable label="Add New" ref={blogFormRef}>
-            <h2>Create blog</h2>
-            <BlogForm addBlog={addBlog} />
-          </Togglable>
-        </div>
-      )}
-      {blogs
-        .sort((a, b) => a.likes - b.likes)
-        .map((blog) => (
-          <Blog onRemove={onRemove} key={blog.id} blog={blog} />
-        ))}
-    </div>
+    <>
+      <div>
+        <Notification />
+        {!user && <Login />}
+        {user && (
+          <div className="landing-page">
+            <nav style={{ display: "flex", gap: 30, alignItems: "center" }}>
+              <Link to="/users">Users</Link>
+              <Link to="/blogs">Blogs</Link>
+              <p>{user.username} is logged-in</p>
+              <button
+                style={{ display: "block", height: " 50%" }}
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </nav>
+
+            <Togglable label="Add New" ref={blogFormRef}>
+              <h2>Create blog</h2>
+              <BlogForm addBlog={addBlog} />
+            </Togglable>
+            <h3>Blogs</h3>
+          </div>
+        )}
+      </div>
+      <Switch>
+        <Route exact path="/users/:id">
+          <User />
+        </Route>
+        <Route exact path="/users/">
+          <Users />
+        </Route>
+        <Route exact path="/blogs/:id">
+          <BlogView />
+        </Route>
+        <Route>
+          <div>
+            {blogs
+              .sort((a, b) => a.likes - b.likes)
+              .map((blog) => (
+                <Blog onRemove={onRemove} key={blog.id} blog={blog} />
+              ))}
+          </div>
+        </Route>
+      </Switch>
+    </>
   );
 };
 

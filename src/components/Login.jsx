@@ -12,11 +12,7 @@ export function Login() {
     event.preventDefault();
 
     try {
-      dispatch(storeUser({ username, password }));
-
-      setPassword("");
-      setUsername("");
-      // await blogService.setToken(user.token);
+      await dispatch(storeUser({ username, password }));
     } catch (error) {
       dispatch(newNotification(error.response.data.error));
 

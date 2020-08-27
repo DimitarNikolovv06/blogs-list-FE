@@ -1,6 +1,6 @@
-export const newNotification = (str) => ({
+export const newNotification = (data) => ({
   type: "NEW_NOTIFICATION",
-  data: str,
+  data,
 });
 
 export const notificationsReducer = (state = null, action) => {

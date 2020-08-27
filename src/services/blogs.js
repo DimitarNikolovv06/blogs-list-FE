@@ -37,10 +37,21 @@ const putBlog = async (blog) => {
   return blog.id;
 };
 
+const postComment = async (id, comment) => {
+  try {
+    const res = await axios.post(`${baseUrl}/${id}/comments`, comment);
+
+    return res.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export default {
   getAll,
   setToken,
   postBlog,
   deleteBlog,
   putBlog,
+  postComment,
 };
