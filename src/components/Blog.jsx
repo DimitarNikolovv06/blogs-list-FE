@@ -1,36 +1,48 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link as ReachLink } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { Box, Button, useColorMode, Link, Flex } from "@chakra-ui/core";
 
 export default function Blog({ onRemove, blog }) {
   const user = useSelector((state) => state.user) || {};
-
-  const style = {
-    padding: 10,
-    border: "solid",
-    borderWidth: 1,
-    margin: 5,
+  const { colorMode } = useColorMode();
+  const hoverStyle = {
+    color: "white",
   };
 
   return (
-    <div className="blog" style={style}>
-      {<Link to={`/blogs/${blog.id}`}>{blog.title}</Link>}{" "}
-      {user.id === (blog.user.id ? blog.user.id : blog.user) && (
-        <button
-          id="#remove-btn"
-          style={{
-            background: "blue",
-            marginLeft: 15,
-            padding: 5,
-            color: "white",
-            border: "solid",
-            cursor: "pointer",
-          }}
-          onClick={(event) => onRemove(event, blog.id)}
-        >
-          Remove
-        </button>
-      )}
-    </div>
+    <Box position="relative" className="blog">
+      <Flex align="flex-start" justify="flex-start">
+        {
+          <Link
+            textDecoration="none"
+            color={colorMode === "light" ? "#81e6d9" : "black"}
+            fontSize="4xl"
+            fontWeight="bolder"
+            _hover={hoverStyle}
+            as={ReachLink}
+            to={`/blogs/${blog.id}`}
+            mr={5}
+            mb={5}
+          >
+            {blog.title}
+          </Link>
+        }{" "}
+        {user.id === (blog.user.id ? blog.user.id : blog.user) && (
+          <Button
+            mt={2}
+            border="none"
+            variantColor="red"
+            id="#remove-btn"
+            onClick={(event) => onRemove(event, blog.id)}
+            h={8}
+            d="block"
+            ml="auto"
+          >
+            Remove
+          </Button>
+        )}
+      </Flex>
+    </Box>
   );
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link as ReachLink } from "react-router-dom";
 import { useEffect } from "react";
 import {
   initBlogs,
@@ -9,12 +9,28 @@ import {
 } from "../reducers/blogsReducer";
 import { useState } from "react";
 import { newNotification } from "../reducers/notificationsReducer";
+import {
+  Button,
+  Text,
+  Box,
+  List,
+  ListItem,
+  useColorMode,
+  Heading,
+  Flex,
+  Link,
+  Textarea,
+} from "@chakra-ui/core";
 
 export default function BlogView() {
   const dispatch = useDispatch();
   const [comment, setComment] = useState({
     comment: "",
   });
+  const { colorMode } = useColorMode();
+  const hoverStyle = {
+    color: "#81e6d9",
+  };
 
   const updateBlog = (event) => {
     event.preventDefault();
@@ -68,35 +84,94 @@ export default function BlogView() {
   }, [dispatch, blogs]);
 
   return (
-    <div className="blog-view">
+    <Flex
+      maxW="60vw"
+      direction="column"
+      color={colorMode === "light" ? "white" : "black"}
+      className="blog-view"
+      position="relative"
+      mt="10vh"
+    >
       {blog && (
-        <div>
-          <h1>{blog.title}</h1>
-          <Link to={blog.url}>{blog.url}</Link>
-          <div>
-            <p> {blog.likes} Likes </p>
-            <button onClick={updateBlog}>Like</button>
-          </div>
-          <p>Added by {blog.author}</p>
-          <h4>Comments</h4>
+        <Box>
+          <Heading color="#81e6d9" as="h1" size="5xl">
+            {blog.title}
+          </Heading>
+
+          <Flex m="20px 0 50px 0" justify="space-between" align="center">
+            <Link
+              fontSize="xl"
+              fontWeight="bolder"
+              _hover={hoverStyle}
+              as={ReachLink}
+              to={blog.url}
+              color={colorMode === "light" ? "white" : "black"}
+              mr="auto"
+            >
+              {blog.url}
+            </Link>
+          </Flex>
+          <Text fontStyle="italic" position="absolute" bottom={0} right={0}>
+            Author-- {blog.author}
+          </Text>
+          <Text mb={5} fontSize="xl">
+            Comments
+          </Text>
+
           <form onSubmit={handleSubmit}>
-            <input
+            <Textarea
+              focusBorderColor="#81e6d9"
+              bg={colorMode === "light" ? "black" : "white"}
+              color={colorMode === "light" ? "white" : "black"}
+              placeholder="Share your thoughts..."
               onChange={handleChange}
               value={comment.comment}
               name="comment"
               type="text"
+              mb={5}
             />
-            <button>Add comment</button>
+            <Flex>
+              <Button
+                type="submit"
+                variantColor="teal"
+                border="none"
+                cursor="pointer"
+                m="auto 3px"
+              >
+                Add comment
+              </Button>
+              <Button
+                cursor="pointer"
+                onClick={updateBlog}
+                border="none"
+                m="auto 3px"
+              >
+                Like
+              </Button>
+              <Text ml="auto " fontSize="3xl">
+                {" "}
+                {blog.likes} Likes{" "}
+              </Text>
+            </Flex>
           </form>
+
           {blog.comments && (
-            <ul>
+            <List m="30px auto">
               {blog.comments.map((com, i) => (
-                <li key={i}>{com}</li>
+                <ListItem
+                  pb={3}
+                  pl={5}
+                  fontWeight="bold"
+                  fontStyle="italic"
+                  key={i}
+                >
+                  <q>{com}</q>
+                </ListItem>
               ))}
-            </ul>
+            </List>
           )}
-        </div>
+        </Box>
       )}
-    </div>
+    </Flex>
   );
 }
