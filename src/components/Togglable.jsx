@@ -17,7 +17,7 @@ export const Togglable = React.forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({ toggle, visible }));
 
   return (
-    <>
+    <Box mb={10}>
       <Box style={hideWhenVisible}>
         <Button
           cursor="pointer"
@@ -41,7 +41,7 @@ export const Togglable = React.forwardRef((props, ref) => {
           Close
         </Button>
       </Box>
-    </>
+    </Box>
   );
 });
 

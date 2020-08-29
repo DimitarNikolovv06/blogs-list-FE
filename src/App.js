@@ -12,7 +12,15 @@ import { Switch, Route, Link as ReachLink, Redirect } from "react-router-dom";
 import Users from "./components/Users";
 import { User } from "./components/User";
 import BlogView from "./components/BlogView";
-import { Button, Box, Flex, useColorMode, Text, Link } from "@chakra-ui/core";
+import {
+  Button,
+  Box,
+  Flex,
+  useColorMode,
+  Text,
+  Link,
+  Heading,
+} from "@chakra-ui/core";
 import "./App.css";
 
 const App = () => {
@@ -176,30 +184,42 @@ const App = () => {
         </Route>
         <Route exact path="/blogs">
           {user ? (
-            <Box>
-              {blogs
-                .sort((a, b) => a.likes - b.likes)
-                .map((blog) => (
-                  <Blog onRemove={onRemove} key={blog.id} blog={blog} />
-                ))}
-            </Box>
+            <>
+              {user && (
+                <Togglable label="New Blog" ref={blogFormRef}>
+                  <Text
+                    fontSize="5x1"
+                    fontWeight="bolder"
+                    color={colorMode === "light" ? "#81e6d9" : "black"}
+                    mb={5}
+                  >
+                    Create Blog
+                  </Text>
+                  <BlogForm addBlog={addBlog} />
+                </Togglable>
+              )}
+              <Box>
+                {blogs
+                  .sort((a, b) => a.likes - b.likes)
+                  .map((blog) => (
+                    <Blog onRemove={onRemove} key={blog.id} blog={blog} />
+                  ))}
+              </Box>
+            </>
           ) : (
             <Redirect to="/" />
           )}
         </Route>
         <Route exact path="/">
           {user && (
-            <Togglable label="New Blog" ref={blogFormRef}>
-              <Text
-                fontSize="5x1"
-                fontWeight="bolder"
-                color={colorMode === "light" ? "#81e6d9" : "black"}
-                mb={5}
-              >
-                Create Blog
-              </Text>
-              <BlogForm addBlog={addBlog} />
-            </Togglable>
+            <Heading
+              color={colorMode === "light" ? "#81e6d9" : "black"}
+              as="h1"
+              size="2xl"
+            >
+              Welcome back, <br />
+              {user.username}
+            </Heading>
           )}
         </Route>
       </Switch>

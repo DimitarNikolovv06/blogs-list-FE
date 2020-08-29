@@ -7,7 +7,7 @@ export default function Blog({ onRemove, blog }) {
   const user = useSelector((state) => state.user) || {};
   const { colorMode } = useColorMode();
   const hoverStyle = {
-    color: "white",
+    color: colorMode === "light" ? "white" : "#81e6d9",
   };
 
   return (
@@ -38,6 +38,7 @@ export default function Blog({ onRemove, blog }) {
             h={8}
             d="block"
             ml="auto"
+            cursor="pointer"
           >
             Remove
           </Button>

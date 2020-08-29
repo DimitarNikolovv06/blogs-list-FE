@@ -21,7 +21,7 @@ export function User() {
   const user = users ? users.find((u) => u.id === id) : null;
   const { colorMode } = useColorMode();
   const hoverStyle = {
-    color: "white",
+    color: colorMode === "light" ? "white" : "#81e6d9",
   };
 
   useEffect(() => {
